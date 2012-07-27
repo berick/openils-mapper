@@ -198,7 +198,11 @@ module EDI::E
     
     def finalize
       mode = @ic.output_mode
-      @ic = EDI::E::Interchange.parse(StringIO.new(@ic.to_s))
+      # XXX skip validation until GIR segments are fully supported in edi4r
+      # edi4r/edifact.rb:validate fails when calling edi4r/diagrams.rb:seek
+      # on the GIR segment, claiming that it cannot find it in the diagram.
+      # note, however, that the GIR segments are properly built by edi4r.
+      @ic = EDI::E::Interchange.parse(StringIO.new(@ic.to_s), false)
       @ic.output_mode = mode
       return self
     end
