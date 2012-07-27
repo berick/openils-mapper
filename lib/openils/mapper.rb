@@ -79,6 +79,36 @@ OpenILS::Mapper.map 'item' do |mapper,key,value|
   end
   mapper.add('PRI', { 'C509' => { '5118' => value['price'] } })
   mapper.add('RFF', { 'C506' => { '1153' => 'LI', '1154' => value['line_number'] } })
+
+  # map copy-level data to GIR
+  if value.has_key?('copies')
+    copies = value['copies']
+
+    copies.each_with_index { |copy,index|
+
+      break if index == 1000 # max allowed by spec
+
+      fields = []
+      fields.push({'7405' => 'LCO', '7402' => copy['copy_id']}) if copy.has_key?('copy_id')
+      fields.push({'7405' => 'LAC', '7402' => copy['barcode']}) if copy.has_key?('barcode')
+      fields.push({'7405' => 'LFN', '7402' => copy['fund']}) if copy.has_key?('fund')
+      fields.push({'7405' => 'LLO', '7402' => copy['owning_lib']}) if copy.has_key?('owning_lib')
+      fields.push({'7405' => 'LSM', '7402' => copy['call_number']}) if copy.has_key?('call_number')
+      fields.push({'7405' => 'LST', '7402' => copy['item_type']}) if copy.has_key?('item_type')
+      fields.push({'7405' => 'LSQ', '7402' => copy['copy_location']}) if copy.has_key?('copy_location')
+      fields.push({'7405' => 'LQT', '7402' => copy['quantity']}) if copy.has_key?('quantity')
+      fields.push({'7405' => 'LFH', '7402' => copy['collection_code']}) if copy.has_key?('collection_code')
+
+      ident = sprintf('%.3d', index + 1)
+
+      # GIR segments may only have 5 fields.  Any more and we
+      # must add an additional segment with the extra fields
+      mapper.add('GIR', { '7297' => ident, 'C206' => fields.slice!(0, 5) })
+      if fields.length > 0
+        mapper.add('GIR', { '7297' => ident, 'C206' => fields })
+      end
+    }
+  end
 end
 
 OpenILS::Mapper.map('party',/^(buyer|vendor)$/) do |mapper,key,value|
