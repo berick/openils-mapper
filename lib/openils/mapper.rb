@@ -84,11 +84,11 @@ OpenILS::Mapper.map 'item' do |mapper,key,value|
       fields.push({'7405' => 'LLO', '7402' => copy['owning_lib']}) if copy.has_key?('owning_lib')
       fields.push({'7405' => 'LSQ', '7402' => copy['collection_code']}) if copy.has_key?('collection_code')
       fields.push({'7405' => 'LQT', '7402' => copy['quantity']}) if copy.has_key?('quantity')
+      fields.push({'7405' => 'LCO', '7402' => copy['copy_id']}) if copy.has_key?('copy_id')
       fields.push({'7405' => 'LST', '7402' => copy['item_type']}) if copy.has_key?('item_type')
       fields.push({'7405' => 'LSM', '7402' => copy['call_number']}) if copy.has_key?('call_number')
       fields.push({'7405' => 'LFN', '7402' => copy['fund']}) if copy.has_key?('fund')
       fields.push({'7405' => 'LFH', '7402' => copy['copy_location']}) if copy.has_key?('copy_location')
-      fields.push({'7405' => 'LCO', '7402' => copy['copy_id']}) if copy.has_key?('copy_id')
       fields.push({'7405' => 'LAC', '7402' => copy['barcode']}) if copy.has_key?('barcode')
 
       ident = sprintf('%.3d', index + 1)
