@@ -33,12 +33,13 @@ OpenILS::Mapper.map 'order' do |mapper,key,value|
   po_name = value.has_key?('po_name') ? value['po_name'] : value['po_number']
 
   value['items'].each_with_index { |item,index|
-    item['line_index'] = index + 1 if item['line_index'].nil?
+    item['line_index'] = index + 1
     item['line_number'] = "#{po_name}/#{item['line_index']}" if item['line_number'].nil?
     mapper.add('item', item)
   }
   mapper.add("UNS", {})
   mapper.add("CNT", { 'C270' => { '6066' => value['line_items'] } })
+  mapper.add("FTX", { 'C107' => { '4441' => value['po_note'] } }) unless value['po_note'].nil?
 end
 
 def map_identifier(data)
